@@ -1,0 +1,63 @@
+---
+- name: Apply common security baseline
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+    - name: Install security updates
+      apt:
+        upgrade: security
+    - name: Disable root SSH login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PermitRootLogin"
+        line: "PermitRootLogin prohibit-password"
+      notify: restart sshd
+    - name: Configure firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 22
+        - 443
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
+
+- name: Deploy Wazuh agent
+  hosts: monitoring
+  become: yes
+  tasks:
+    - name: Add Wazuh repo key
+      apt_key:
+        url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+        state: present
+    - name: Add Wazuh repository
+      apt_repository:
+        repo: deb https://packages.wazuh.com/4.x/apt/ stable main
+        state: present
+    - name: Install Wazuh agent
+      apt:
+        name: wazuh-agent
+        state: present
+    - name: Configure Wazuh manager
+      lineinfile:
+        path: /var/ossec/etc/ossec.conf
+        regexp: "<address>"
+        line: "    <address>10.0.20.5</address>"
+    - name: Start Wazuh agent
+      service:
+        name: wazuh-agent
+        state: started
+        enabled: yes

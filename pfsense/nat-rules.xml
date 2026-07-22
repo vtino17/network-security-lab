@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<pfsense>
+  <nat>
+    <rule>
+      <type>portmap</type>
+      <protocol>tcp</protocol>
+      <target>10.0.20.5</target>
+      <local-port>443</local-port>
+      <descr><![CDATA[NAT HTTPS to Wazuh dashboard]]></descr>
+    </rule>
+    <rule>
+      <type>portmap</type>
+      <protocol>udp</protocol>
+      <target>10.0.20.5</target>
+      <local-port>1514</local-port>
+      <descr><![CDATA[NAT Wazuh agent communication]]></descr>
+    </rule>
+    <rule>
+      <type>outbound</type>
+      <interface>wan</interface>
+      <source>
+        <network>10.0.0.0/8</network>
+      </source>
+      <descr><![CDATA[Masquerade internal traffic]]></descr>
+    </rule>
+  </nat>
+</pfsense>

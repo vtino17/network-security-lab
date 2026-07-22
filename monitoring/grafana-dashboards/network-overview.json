@@ -1,0 +1,52 @@
+{
+  "title": "Network Overview",
+  "version": 1,
+  "panels": [
+    {
+      "title": "Interface Throughput",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "rate(if_octets_rx[5m])",
+          "legendFormat": "{{ ifName }} RX"
+        },
+        {
+          "expr": "rate(if_octets_tx[5m])",
+          "legendFormat": "{{ ifName }} TX"
+        }
+      ]
+    },
+    {
+      "title": "Active Connections",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(node_netstat_Tcp_CurrEstab)"
+        }
+      ]
+    },
+    {
+      "title": "DNS Query Rate",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "targets": [
+        {
+          "expr": "rate(node_nf_conntrack_entries[5m])"
+        }
+      ]
+    },
+    {
+      "title": "Firewall Drops",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+      "targets": [
+        {
+          "expr": "rate(node_network_drop[5m])",
+          "legendFormat": "{{ device }}"
+        }
+      ]
+    }
+  ]
+}

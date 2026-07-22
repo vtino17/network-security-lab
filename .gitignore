@@ -1,0 +1,7 @@
+*.log
+*.pid
+*.bak
+*.swp
+.DS_Store
+secrets/
+.env

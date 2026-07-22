@@ -1,0 +1,47 @@
+groups:
+  - name: network
+    rules:
+      - alert: HighPacketLoss
+        expr: probe_success == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host {{ $labels.instance }} is unreachable"
+          description: "ICMP probe to {{ $labels.instance }} has failed for 5 minutes"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage has exceeded 80% for 10 minutes"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Available disk space is below 10%"
+
+      - alert: InterfaceDown
+        expr: snmp_if_oper_status{oper_status="2"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Interface {{ $labels.ifName }} is down"
+          description: "Network interface {{ $labels.ifName }} on {{ $labels.instance }} is down"
+
+      - alert: CertificateExpiring
+        expr: probe_ssl_earliest_cert_expiry - time() < 604800
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "TLS certificate expiring on {{ $labels.instance }}"
+          description: "Certificate will expire in less than 7 days"

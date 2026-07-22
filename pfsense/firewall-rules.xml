@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<pfsense>
+  <filter>
+    <rule>
+      <type>pass</type>
+      <interface>wan</interface>
+      <protocol>tcp</protocol>
+      <destination>
+        <port>443</port>
+      </destination>
+      <descr><![CDATA[Allow HTTPS to Wazuh dashboard]]></descr>
+    </rule>
+    <rule>
+      <type>pass</type>
+      <interface>wan</interface>
+      <protocol>udp</protocol>
+      <destination>
+        <port>1194</port>
+      </destination>
+      <descr><![CDATA[Allow OpenVPN]]></descr>
+    </rule>
+    <rule>
+      <type>block</type>
+      <interface>wan</interface>
+      <protocol>*</protocol>
+      <source>
+        <network>0.0.0.0/0</network>
+      </source>
+      <descr><![CDATA[Block all other WAN traffic]]></descr>
+    </rule>
+    <rule>
+      <type>pass</type>
+      <interface>lan</interface>
+      <protocol>*</protocol>
+      <source>
+        <network>10.0.10.0/24</network>
+      </source>
+      <destination>
+        <network>10.0.20.0/24</network>
+      </destination>
+      <descr><![CDATA[Allow management to servers]]></descr>
+    </rule>
+    <rule>
+      <type>block</type>
+      <interface>lan</interface>
+      <protocol>*</protocol>
+      <source>
+        <network>10.0.30.0/24</network>
+      </source>
+      <descr><![CDATA[Block IoT to other VLANs]]></descr>
+    </rule>
+    <rule>
+      <type>block</type>
+      <interface>lan</interface>
+      <protocol>*</protocol>
+      <source>
+        <network>10.0.40.0/24</network>
+      </source>
+      <descr><![CDATA[Block guest to internal VLANs]]></descr>
+    </rule>
+  </filter>
+</pfsense>

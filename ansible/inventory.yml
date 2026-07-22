@@ -1,0 +1,22 @@
+all:
+  hosts:
+    wazuh-mgr:
+      ansible_host: 10.0.20.5
+      ansible_user: admin
+      role: wazuh-manager
+    prometheus:
+      ansible_host: 10.0.20.10
+      ansible_user: admin
+      role: monitoring
+    grafana:
+      ansible_host: 10.0.20.11
+      ansible_user: admin
+      role: monitoring
+  children:
+    management:
+      hosts:
+        wazuh-mgr:
+    monitoring:
+      hosts:
+        prometheus:
+        grafana:
