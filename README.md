@@ -1,14 +1,57 @@
 # Network Security Lab
 
+[![License](https://img.shields.io/badge/License-MIT-22AA55?style=flat-square)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/vtino17/network-security-lab?style=flat-square)](https://github.com/vtino17/network-security-lab/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/vtino17/network-security-lab?style=flat-square)](https://github.com/vtino17/network-security-lab/commits)
+[![Topics](https://img.shields.io/github/languages/top/vtino17/network-security-lab?style=flat-square)](https://github.com/vtino17/network-security-lab)
+[![MikroTik](https://img.shields.io/badge/MikroTik-RouterOS-00AEEF?style=flat-square)](https://mikrotik.com)
+[![Wazuh](https://img.shields.io/badge/Wazuh-SIEM-22AA55?style=flat-square)](https://wazuh.com)
+
 Enterprise-grade network security architecture with integrated monitoring, SIEM, firewall management, and automated deployment.
 
 ## Architecture Overview
 
-Internet -> pfSense (Firewall) -> Switch (VLAN Segmentation) -> Services (Wazuh, Prometheus, Grafana)
-                                                                       -> Management Network
-                                                                       -> Server Network
-                                                                       -> IoT Network (isolated)
-                                                                       -> Guest Network (isolated)
+```mermaid
+graph TD
+    Internet[Internet] --> pfSense[pfSense Firewall]
+    pfSense --> VLANSwitch[Managed Switch]
+    
+    subgraph VLAN10[Management Network 10.0.10.0/24]
+        AdminWS[Admin Workstation]
+        JumpHost[Jump Host]
+    end
+    
+    subgraph VLAN20[Server Network 10.0.20.0/24]
+        Wazuh[Wazuh SIEM]
+        Prometheus[Prometheus]
+        Grafana[Grafana]
+        ELK[ELK Stack]
+        DNS[DNS Server]
+    end
+    
+    subgraph VLAN30[IoT Network 10.0.30.0/24]
+        IoT[IoT Devices]
+    end
+    
+    subgraph VLAN40[Guest Network 10.0.40.0/24]
+        Guest[Guest Access]
+    end
+    
+    subgraph VLAN50[VoIP Network 10.0.50.0/24]
+        VoIP[Voice Traffic]
+    end
+    
+    VLANSwitch --> VLAN10
+    VLANSwitch --> VLAN20
+    VLANSwitch --> VLAN30
+    VLANSwitch --> VLAN40
+    VLANSwitch --> VLAN50
+    
+    Wazuh -.->|Log Collection| AdminWS
+    Wazuh -.->|Syslog| pfSense
+    Prometheus -.->|Metrics| Wazuh
+    Grafana -.->|Visualize| Prometheus
+```
 
 ## Components
 
