@@ -1,3 +1,6 @@
+# network-security-lab
+
+[![CI](https://img.shields.io/github/actions/workflow/status/vtino17/network-security-lab/ci.yml?style=flat-square&label=CI)](https://github.com/vtino17/network-security-lab/actions)
 # Network Security Lab
 
 [![License](https://img.shields.io/badge/License-MIT-22AA55?style=flat-square)](LICENSE)
@@ -117,3 +120,4 @@ network-security-lab/
 ## License
 
 MIT
+
