@@ -4,18 +4,28 @@ set -euo pipefail
 LAB_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 check_requirements() {
-    local deps=("docker" "docker-compose" "ansible-playbook")
+    local deps=("docker" "ansible-playbook")
     for cmd in "${deps[@]}"; do
         if ! command -v "$cmd" &>/dev/null; then
             echo "Error: $cmd not found"
             exit 1
         fi
     done
+    if ! docker compose version &>/dev/null; then
+        echo "Error: Docker Compose v2 plugin not found"
+        exit 1
+    fi
     echo "All requirements satisfied"
 }
 
 deploy_monitoring() {
     echo "Deploying monitoring stack..."
+    local grafana_secret="$LAB_DIR/docker/secrets/grafana_admin_password.txt"
+    if [[ ! -s "$grafana_secret" ]]; then
+        echo "Error: create a non-empty Grafana password at $grafana_secret" >&2
+        return 1
+    fi
+    chmod 600 "$grafana_secret"
     cd "$LAB_DIR/docker"
     docker compose pull
     docker compose up -d
@@ -25,10 +35,21 @@ deploy_monitoring() {
 configure_mikrotik() {
     local router_ip="${1:-10.0.10.1}"
     local ssh_user="${2:-admin}"
+    if [[ ! "$router_ip" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*$ || ! "$ssh_user" =~ ^[A-Za-z_][A-Za-z0-9_.-]*$ ]]; then
+        echo "Error: invalid MikroTik host or SSH user" >&2
+        return 1
+    fi
     echo "Configuring MikroTik at $router_ip..."
     if command -v sshpass &>/dev/null; then
+        if [[ -z "${MIKROTIK_PASSWORD:-}" ]]; then
+            echo "Error: set MIKROTIK_PASSWORD before automated deployment" >&2
+            return 1
+        fi
         for config in "$LAB_DIR/mikrotik/"*.rsc; do
-            sshpass -p "$MIKROTIK_PASSWORD" ssh -o StrictHostKeyChecking=no "$ssh_user@$router_ip" "/import file-name=$(basename "$config")"
+            local remote_name
+            remote_name="$(basename "$config")"
+            SSHPASS="$MIKROTIK_PASSWORD" sshpass -e scp -o StrictHostKeyChecking=accept-new "$config" "$ssh_user@$router_ip:$remote_name"
+            SSHPASS="$MIKROTIK_PASSWORD" sshpass -e ssh -o StrictHostKeyChecking=accept-new "$ssh_user@$router_ip" "/import file-name=$remote_name"
         done
         echo "MikroTik configured"
     else
@@ -51,6 +72,7 @@ validate_deployment() {
     echo "Validation completed"
 }
 
+main() {
 case "${1:-all}" in
     check)
         check_requirements
@@ -80,3 +102,8 @@ case "${1:-all}" in
         exit 1
         ;;
 esac
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

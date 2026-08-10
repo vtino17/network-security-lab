@@ -85,11 +85,19 @@ git clone https://github.com/vtino17/network-security-lab.git
 cd network-security-lab
 
 # Deploy monitoring stack
+mkdir -p docker/secrets
+openssl rand -base64 32 > docker/secrets/grafana_admin_password.txt
+chmod 600 docker/secrets/grafana_admin_password.txt
 cd docker && docker compose up -d
 
 # Configure MikroTik (import via WinBox/CLI)
 # See mikrotik/ directory for configuration scripts
 ```
+
+Prometheus, Grafana, and the Wazuh indexer bind to loopback by default. Expose
+them only through an authenticated reverse proxy or a private management
+network. The deployment script uses SSH host-key trust-on-first-use and uploads
+each RouterOS configuration before importing it.
 
 ## Directory Structure
 
@@ -120,4 +128,3 @@ network-security-lab/
 ## License
 
 MIT
-
