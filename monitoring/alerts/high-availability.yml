@@ -2,13 +2,13 @@ groups:
   - name: network
     rules:
       - alert: HighPacketLoss
-        expr: probe_success == 0
+        expr: up == 0
         for: 5m
         labels:
           severity: critical
         annotations:
-          summary: "Host {{ $labels.instance }} is unreachable"
-          description: "ICMP probe to {{ $labels.instance }} has failed for 5 minutes"
+          summary: "Host {{ $labels.instance }} is down"
+          description: "Service {{ $labels.job }}/{{ $labels.instance }} down for 5 minutes"
 
       - alert: HighCPUUsage
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
