@@ -4,12 +4,6 @@ global:
   external_labels:
     environment: lab
 
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-          - alertmanager:9093
-
 rule_files:
   - "alerts/*.yml"
 
