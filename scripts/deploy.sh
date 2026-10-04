@@ -81,7 +81,7 @@ case "${1:-all}" in
         deploy_monitoring
         ;;
     mikrotik)
-        configure_mikrotik "${2:-}"
+        configure_mikrotik "${2:-}" "${3:-}"
         ;;
     ansible)
         run_ansible
