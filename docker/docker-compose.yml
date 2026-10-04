@@ -59,11 +59,12 @@ services:
     restart: unless-stopped
 
   adguard:
-    image: adguard/adguardhome:latest
+    image: adguard/adguardhome:v0.107.52
     ports:
-      - "53:53/udp"
-      - "80:80"
-      - "853:853/tcp"
+      - "127.0.0.1:53:53/udp"
+      - "127.0.0.1:53:53/tcp"
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:853:853/tcp"
     volumes:
       - adguard_data:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
